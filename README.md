@@ -14,24 +14,88 @@ Proyecto de **Mecánica Celeste** que estudia la aproximación a la Tierra del a
 
 ---
 
-## Contenido del repositorio
+## Estructura del repositorio
 
-Este repositorio está organizado alrededor de **tres modelos** (cada uno en un notebook), donde el **Modelo 3** es el más actual:
+```
+Apophis-Asteroid-Project/
+├── modelos/                         ← Integración N-cuerpos (pipeline principal)
+│   ├── modelo1_SEMAJ.ipynb
+│   ├── modelo2_SEMAJV.ipynb
+│   └── modelo3_completo.ipynb
+├── analisis/                        ← Análisis avanzados (mecánica celeste profunda)
+│   ├── nb4_kepler_benchmark.ipynb
+│   ├── nb5_hodografo.ipynb
+│   ├── nb6_crtbp_jacobi_tisserand.ipynb
+│   └── nb7_perturbaciones_gauss.ipynb
+├── Orbit_Viewer.ipynb
+├── cuadraturas_PRelativo2cuerpos.ipynb
+└── README.md
+```
+
+### Flujo narrativo recomendado
+
+```
+cuadraturas (existente) → nb4_kepler → nb5_hodografo → nb6_jacobi_tisserand → nb7_gauss
+       ↑                                                          ↑
+  modelo3_completo (existente) ─────────────────────────────────┘
+```
+
+---
+
+## Modelos N-cuerpos (`modelos/`)
+
+Esta carpeta contiene la evolución progresiva del modelo dinámico, donde el **Modelo 3** es el resultado final:
 
 - **Modelo 1 — SEMAJ (5 cuerpos):** Sol–Tierra–Luna–Apophis–Júpiter  
-  Notebook: `modelo1_SEMAJ.ipynb`  
-  https://github.com/soleildayana/Apophis-Asteroid-Project/blob/main/modelo1_SEMAJ.ipynb
+  Notebook: [`modelos/modelo1_SEMAJ.ipynb`](modelos/modelo1_SEMAJ.ipynb)
 
 - **Modelo 2 — SEMAJV (6 cuerpos):** Sol–Tierra–Luna–Apophis–Júpiter–Venus  
-  Notebook: `modelo2_SEMAJV.ipynb`  
-  https://github.com/soleildayana/Apophis-Asteroid-Project/blob/main/modelo2_SEMAJV.ipynb
+  Notebook: [`modelos/modelo2_SEMAJV.ipynb`](modelos/modelo2_SEMAJV.ipynb)
 
-- **Modelo 3  — Sistema de 9 cuerpos:** Sol–Mercurio–Venus–Tierra–Luna–Marte–Júpiter–Saturno–Apophis  
-  Notebook: `modelo3_completo.ipynb`  
-  https://github.com/soleildayana/Apophis-Asteroid-Project/blob/main/modelo3_completo.ipynb
+- **Modelo 3 (final) — 9 cuerpos + convergencia + incertidumbre:**  
+  Sol–Mercurio–Venus–Tierra–Luna–Marte–Júpiter–Saturno–Apophis  
+  Notebook: [`modelos/modelo3_completo.ipynb`](modelos/modelo3_completo.ipynb)
 
-> Nota: `main.ipynb` corresponde a un **primer avance / exploración** (incluye instalación y pruebas iniciales con `pymcel` y preparación para `rebound`), pero **no es el núcleo del proyecto** frente a los Modelos 1–2–3.  
-> Archivo: https://github.com/soleildayana/Apophis-Asteroid-Project/blob/main/main.ipynb
+---
+
+## Análisis avanzados (`analisis/`)
+
+Cuatro notebooks independientes que exploran la mecánica celeste de Apophis con mayor profundidad teórica:
+
+### NB4 — Solver de Kepler: Benchmarking
+**Archivo:** [`analisis/nb4_kepler_benchmark.ipynb`](analisis/nb4_kepler_benchmark.ipynb)
+
+Implementa una clase `KeplerSolver` que compara tres métodos iterativos para resolver la ecuación trascendental de Kepler $M = E - e\sin E$:
+- Newton-Raphson (convergencia cuadrática)
+- Punto Fijo (convergencia lineal)
+- Laguerre-Conway (convergencia de orden superior, robusto)
+
+Evalúa el número de iteraciones y tiempo CPU a lo largo de la órbita de Apophis, con énfasis en la región del perigeo.
+
+### NB5 — El Hodógrafo: Geometría de la Velocidad
+**Archivo:** [`analisis/nb5_hodografo.ipynb`](analisis/nb5_hodografo.ipynb)
+
+Visualiza el hodógrafo de Apophis: el vector velocidad describe un **círculo** en el espacio $(v_x, v_y)$ (Teorema de Hamilton). Muestra cómo el hodógrafo se desplaza antes y después del encuentro de 2029, codificando el cambio en excentricidad, y valida que las velocidades N-cuerpos en tramos keplerianos caen sobre el círculo teórico.
+
+### NB6 — CRTBP, Constante de Jacobi y Parámetro de Tisserand
+**Archivo:** [`analisis/nb6_crtbp_jacobi_tisserand.ipynb`](analisis/nb6_crtbp_jacobi_tisserand.ipynb)
+
+Dos bloques en un solo notebook (misma física de tres cuerpos):
+
+**Bloque A — CRTBP:** Calcula la constante de Jacobi $C_J = 2\Omega - v^2$ y grafica las curvas de velocidad cero del sistema Sol-Tierra. Determina si la "puerta" en $L_1$ o $L_2$ está abierta o cerrada para Apophis: ¿puede ser capturado gravitacionalmente?
+
+**Bloque B — Tisserand:** Calcula $T_P = a_T/a + 2\cos i\,\sqrt{(a/a_T)(1-e^2)}$ en función del tiempo (2027–2031) y demuestra que, aunque $a$ y $e$ cambian drásticamente tras el encuentro, $T_P$ se conserva ($\Delta T_P/T_P < 1\%$). Es la "prueba de identidad" orbital de Apophis.
+
+### NB7 — Ecuaciones de Gauss: Perturbaciones Orbitales
+**Archivo:** [`analisis/nb7_perturbaciones_gauss.ipynb`](analisis/nb7_perturbaciones_gauss.ipynb)
+
+Modela cómo la fuerza perturbadora de la Tierra cambia la inclinación $i$ y el nodo ascendente $\Omega$ de Apophis durante el encuentro, usando las ecuaciones de Gauss-Lagrange (VOP):
+
+$$\frac{di}{dt} = \frac{r\cos(\omega+f)}{h}\,W \qquad \frac{d\Omega}{dt} = \frac{r\sin(\omega+f)}{h\sin i}\,W$$
+
+Compara los resultados con la integración N-cuerpos directa y menciona las variables de Delaunay como el formalismo canónico equivalente.
+
+> Nota: `cuadraturas_PRelativo2cuerpos.ipynb` corresponde a un **cuaderno de clase** sobre el problema relativo de dos cuerpos y determinación orbital, que sirve como base teórica para los análisis posteriores.
 
 ---
 
@@ -48,8 +112,8 @@ $$
 $$
 
 En este proyecto se usan **unidades canónicas** astronómicas (AU, $$M_\odot\$$, UT) y se trabaja con \(G = 1\), como se define explícitamente en los notebooks (por ejemplo en el Modelo 2 y el Modelo 3).  
-Modelo 2: https://github.com/soleildayana/Apophis-Asteroid-Project/blob/main/modelo2_SEMAJV.ipynb  
-Modelo 3: https://github.com/soleildayana/Apophis-Asteroid-Project/blob/main/modelo3_completo.ipynb
+Modelo 2: [`modelos/modelo2_SEMAJV.ipynb`](modelos/modelo2_SEMAJV.ipynb)  
+Modelo 3: [`modelos/modelo3_completo.ipynb`](modelos/modelo3_completo.ipynb)
 
 ### 2) Magnitud clave observacional: distancia Tierra–Apophis
 La cantidad que se minimiza para encontrar el máximo acercamiento es:
@@ -59,9 +123,9 @@ d_{EA}(t)=\left\|\mathbf r_{\text{Apophis}}(t)-\mathbf r_{\text{Tierra}}(t)\righ
 $$
 
 Todos los modelos reportan el mínimo global de \(d_{EA}(t)\) en la ventana 2028–2029, y luego ejecutan un refinamiento local para aumentar la resolución temporal alrededor del mínimo.  
-Modelo 1: https://github.com/soleildayana/Apophis-Asteroid-Project/blob/main/modelo1_SEMAJ.ipynb  
-Modelo 2: https://github.com/soleildayana/Apophis-Asteroid-Project/blob/main/modelo2_SEMAJV.ipynb  
-Modelo 3: https://github.com/soleildayana/Apophis-Asteroid-Project/blob/main/modelo3_completo.ipynb
+Modelo 1: [`modelos/modelo1_SEMAJ.ipynb`](modelos/modelo1_SEMAJ.ipynb)  
+Modelo 2: [`modelos/modelo2_SEMAJV.ipynb`](modelos/modelo2_SEMAJV.ipynb)  
+Modelo 3: [`modelos/modelo3_completo.ipynb`](modelos/modelo3_completo.ipynb)
 
 ---
 
@@ -113,12 +177,12 @@ La metodología se construyó como un **pipeline único** que se repite en los t
 ### Modelo 1: SEMAJ (5 cuerpos)
 - **Sistema:** Sol, Tierra, Luna, Júpiter, Apophis  
 - **Objetivo:** estimación inicial del máximo acercamiento con el conjunto mínimo de perturbadores dominantes.
-Notebook: https://github.com/soleildayana/Apophis-Asteroid-Project/blob/main/modelo1_SEMAJ.ipynb
+Notebook: [`modelos/modelo1_SEMAJ.ipynb`](modelos/modelo1_SEMAJ.ipynb)
 
 ### Modelo 2: SEMAJV (6 cuerpos)
 - **Sistema:** Sol, Tierra, Luna, Júpiter, Venus, Apophis  
 - **Qué mejora:** añade Venus como perturbador adicional y refuerza el pipeline (unidades, condiciones iniciales, integración, validación y refinamiento).
-Notebook: https://github.com/soleildayana/Apophis-Asteroid-Project/blob/main/modelo2_SEMAJV.ipynb
+Notebook: [`modelos/modelo2_SEMAJV.ipynb`](modelos/modelo2_SEMAJV.ipynb)
 
 ### Modelo 3 (final): 9 cuerpos + convergencia + incertidumbre
 - **Sistema de 9 cuerpos:** Sol, Mercurio, Venus, Tierra, Luna, Marte, Júpiter, Saturno, Apophis  
@@ -126,7 +190,7 @@ Notebook: https://github.com/soleildayana/Apophis-Asteroid-Project/blob/main/mod
   1. integración del modelo final de 9 cuerpos y estimación del máximo acercamiento,
   2. convergencia de \(d_{\min}\) al añadir cuerpos en cadena (SEA → SEMA → SEMAJ → SEMAJV → 9C),
   3. análisis de incertidumbre (Monte Carlo) sobre condiciones iniciales de Apophis.
-Notebook: https://github.com/soleildayana/Apophis-Asteroid-Project/blob/main/modelo3_completo.ipynb
+Notebook: [`modelos/modelo3_completo.ipynb`](modelos/modelo3_completo.ipynb)
 
 ---
 
@@ -137,7 +201,7 @@ El repositorio incluye visualizaciones para interpretar el evento:
 - y una animación 2D centrada en la Tierra (HTML) para el acercamiento local.
 
 Estas salidas están desarrolladas principalmente en el Modelo 3:  
-https://github.com/soleildayana/Apophis-Asteroid-Project/blob/main/modelo3_completo.ipynb
+[`modelos/modelo3_completo.ipynb`](modelos/modelo3_completo.ipynb)
 
 ---
 
