@@ -66,7 +66,7 @@ Interpretación breve: Ritmo muy constante y sostenible durante el semestre.
 
 - Mejoras implementadas: 5.00 (70%)
 - Aplicación al repositorio: 4.75 (10%)
-- Aspectos positivos: 4.00 (10%)
-- Valoración global: 3.00 (10%)
+- Aspectos positivos: 5.00 (10%)
+- Valoración global: 4.80 (10%)
 
-**Nota final (redondeada)**: 0.7×5.00 + 0.1×4.75 + 0.1×4.00 + 0.1×3.00 = (redondeado) 4.7
+**Nota final (redondeada)**: 0.7×5.00 + 0.1×4.75 + 0.1×5.00 + 0.1×4.80 = (redondeado) 5.0
